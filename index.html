@@ -4,7 +4,135 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simple Calculator</title>
-    <link rel="stylesheet" href="styles.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .calculator-container {
+            text-align: center;
+        }
+
+        h1 {
+            color: white;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .calculator {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            width: 320px;
+        }
+
+        .display {
+            width: 100%;
+            padding: 20px;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            text-align: right;
+            background: #f5f5f5;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .display:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 20px;
+            font-size: 1.5em;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            background: #f0f0f0;
+            color: #333;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #e0e0e0;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-clear {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .btn-clear:hover {
+            background: #ee5a52;
+        }
+
+        .btn-operator {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-operator:hover {
+            background: #5568d3;
+        }
+
+        .btn-equals {
+            background: #51cf66;
+            color: white;
+            grid-column: span 2;
+        }
+
+        .btn-equals:hover {
+            background: #40c057;
+        }
+
+        @media (max-width: 480px) {
+            .calculator {
+                width: 100%;
+                max-width: 320px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .display {
+                font-size: 2em;
+            }
+            
+            .btn {
+                padding: 15px;
+                font-size: 1.3em;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="calculator-container">
@@ -36,6 +164,88 @@
             </div>
         </div>
     </div>
-    <script src="script.js"></script>
+
+    <script>
+        let display = document.getElementById('display');
+        let currentInput = '';
+        let operator = '';
+        let previousValue = '';
+
+        // Add number to display
+        function appendNumber(num) {
+            currentInput += num;
+            updateDisplay();
+        }
+
+        // Add operator
+        function appendOperator(op) {
+            if (currentInput === '' && previousValue === '') return;
+            
+            if (previousValue !== '') {
+                calculate();
+            }
+            
+            operator = op;
+            previousValue = currentInput;
+            currentInput = '';
+        }
+
+        // Clear display
+        function clearDisplay() {
+            currentInput = '';
+            operator = '';
+            previousValue = '';
+            updateDisplay();
+        }
+
+        // Perform calculation
+        function calculate() {
+            if (previousValue === '' || currentInput === '' || operator === '') return;
+            
+            let result = 0;
+            const prev = parseFloat(previousValue);
+            const current = parseFloat(currentInput);
+            
+            switch(operator) {
+                case '+':
+                    result = prev + current;
+                    break;
+                case '-':
+                    result = prev - current;
+                    break;
+                case '*':
+                    result = prev * current;
+                    break;
+                case '/':
+                    if (current !== 0) {
+                        result = prev / current;
+                    } else {
+                        alert('Cannot divide by zero!');
+                        clearDisplay();
+                        return;
+                    }
+                    break;
+                default:
+                    return;
+            }
+            
+            currentInput = result.toString();
+            operator = '';
+            previousValue = '';
+            updateDisplay();
+        }
+
+        // Update display
+        function updateDisplay() {
+            if (currentInput === '') {
+                display.value = previousValue;
+            } else {
+                display.value = currentInput;
+            }
+        }
+
+        // Initialize
+        updateDisplay();
+    </script>
 </body>
 </html>
