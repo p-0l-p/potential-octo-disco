@@ -50,6 +50,8 @@
             background: #f5f5f5;
             color: #333;
             font-weight: bold;
+            word-wrap: break-word;
+            word-break: break-all;
         }
 
         .display:focus {
@@ -138,7 +140,7 @@
     <div class="calculator-container">
         <h1>Calculator</h1>
         <div class="calculator">
-            <input type="text" id="display" class="display" readonly>
+            <div id="display" class="display">0</div>
             <div class="buttons">
                 <button class="btn btn-clear" onclick="clearDisplay()">C</button>
                 <button class="btn btn-operator" onclick="appendOperator('/')">/</button>
@@ -173,6 +175,9 @@
 
         // Add number to display
         function appendNumber(num) {
+            // Prevent multiple decimal points
+            if (num === '.' && currentInput.includes('.')) return;
+            
             currentInput += num;
             updateDisplay();
         }
@@ -181,13 +186,22 @@
         function appendOperator(op) {
             if (currentInput === '' && previousValue === '') return;
             
-            if (previousValue !== '') {
+            // If there's a pending calculation, do it first
+            if (previousValue !== '' && currentInput !== '' && operator !== '') {
                 calculate();
+            } else if (previousValue === '' && currentInput !== '') {
+                // No pending calculation, just save the current input
+                previousValue = currentInput;
+                currentInput = '';
+            } else if (previousValue !== '' && currentInput === '') {
+                // User is changing the operator
+                operator = op;
+                updateDisplay();
+                return;
             }
             
             operator = op;
-            previousValue = currentInput;
-            currentInput = '';
+            updateDisplay();
         }
 
         // Clear display
@@ -237,11 +251,21 @@
 
         // Update display
         function updateDisplay() {
-            if (currentInput === '') {
-                display.value = previousValue;
-            } else {
-                display.value = currentInput;
+            let displayText = '';
+            
+            if (previousValue !== '') {
+                displayText += previousValue;
             }
+            
+            if (operator !== '') {
+                displayText += ' ' + operator + ' ';
+            }
+            
+            if (currentInput !== '') {
+                displayText += currentInput;
+            }
+            
+            display.textContent = displayText || '0';
         }
 
         // Initialize
